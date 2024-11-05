@@ -8,13 +8,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // printFileSizes - функция для вывода имен файлов, папок и их размеров
-func printFileSizes(dir string, order string) {
+func printFileSizes(dir string, order string) error {
 	if dir == "" {
 		fmt.Println("Для того, чтобы пользоваться мной, укажите директорию через -dir \nПри желание можно указать порядок вывода через -order")
-		return
+		return nil
 	}
 
 	order = strings.ToLower(order)
@@ -23,14 +24,17 @@ func printFileSizes(dir string, order string) {
 	}
 	if order != "asc" && order != "desc" {
 		fmt.Println("Неправильный ввод режима сортировки. \nДля сортировку по убыванию напишите desc. \nДля сортировку по возрастанию напишите asc, либо не используйте данный параметр.")
-		return
+		return nil
 	}
 	var files []info
 
-	walkDir(dir, &files)
+	err := walkDir(dir, &files)
+	if err != nil {
+		fmt.Println("Обработана ошибка ", err)
+	}
 
 	if len(files) == 0 {
-		return
+		return nil
 	}
 	if order == "asc" {
 		sort.Slice(files, func(i, j int) bool {
@@ -51,6 +55,7 @@ func printFileSizes(dir string, order string) {
 			fmt.Println("Файл: ", file.name, "Размер: ", size, format)
 		}
 	}
+	return nil
 }
 
 // formatSize - функция, для форматирование размера файла + возврат названия размера файла
@@ -101,32 +106,45 @@ func formatSize(size float64) (float64, string) {
 }
 
 // walkDir - рекурсивная функция для обхода директории
-func walkDir(dir string, files *[]info) {
+func walkDir(dir string, files *[]info) error {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println("Ошибка при чтении директории: ", dir)
-		return
+		return err
 	}
+
+	var wg sync.WaitGroup
 
 	for _, entry := range entries {
 		fullPath := filepath.Join(dir, entry.Name())
 
-		if entry.IsDir() {
-			folderSize := getFolderSize(fullPath)
-			*files = append(*files, info{entry.Name(), float64(folderSize), true})
-		} else {
-			information, err := entry.Info()
-			if err != nil {
-				fmt.Println("Ошибка получения информации о файле ", entry.Name())
-				continue
+		wg.Add(1)
+		go func(entry os.DirEntry, path string) {
+			defer wg.Done()
+
+			if entry.IsDir() {
+				folderSize, err := getFolderSize(path)
+				if err != nil {
+					return
+				}
+				*files = append(*files, info{entry.Name(), float64(folderSize), true})
+			} else {
+				information, err := entry.Info()
+				if err != nil {
+					fmt.Println("Ошибка получения информации о файле ", entry.Name())
+					return
+				}
+				*files = append(*files, info{information.Name(), float64(information.Size()), false})
 			}
-			*files = append(*files, info{information.Name(), float64(information.Size()), false})
-		}
+		}(entry, fullPath)
 	}
+
+	wg.Wait()
+	return nil
 }
 
 // getFolderSize - функция для получения общего размера папки и её содержимого
-func getFolderSize(folderPath string) int64 {
+func getFolderSize(folderPath string) (int64, error) {
 	var size int64
 
 	err := filepath.Walk(folderPath, func(_ string, info os.FileInfo, err error) error {
@@ -142,14 +160,18 @@ func getFolderSize(folderPath string) int64 {
 
 	if err != nil {
 		fmt.Println("Ошибка при расчете размера папки ", folderPath)
+		return 0, err
 	}
 
-	return size
+	return size, nil
 }
 
 func main() {
 	dirPath := flag.String("dir", "", "")
 	order := flag.String("order", "", "")
 	flag.Parse()
-	printFileSizes(*dirPath, *order)
+	err := printFileSizes(*dirPath, *order)
+	if err != nil {
+		fmt.Println("Обработана ошибка ", err)
+	}
 }
