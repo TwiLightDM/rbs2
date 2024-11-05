@@ -100,7 +100,7 @@ func formatSize(size float64) (float64, string) {
 	}
 }
 
-// walkDir - рекурсивная функция для обхода директории.
+// walkDir - рекурсивная функция для обхода директории
 func walkDir(dir string, files *[]info) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -125,7 +125,7 @@ func walkDir(dir string, files *[]info) {
 	}
 }
 
-// getFolderSize - функция для получения общего размера папки и её содержимого.
+// getFolderSize - функция для получения общего размера папки и её содержимого
 func getFolderSize(folderPath string) int64 {
 	var size int64
 
