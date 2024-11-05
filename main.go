@@ -7,17 +7,40 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 // printFileSizes - функция для вывода имен файлов, папок и их размеров
-func printFileSizes(dir string) {
+func printFileSizes(dir string, order string) {
+	if dir == "" {
+		fmt.Println("Для того, чтобы пользоваться мной, укажите директорию через -dir \nПри желание можно указать порядок вывода через -order")
+		return
+	}
+
+	order = strings.ToLower(order)
+	if order == "" {
+		order = "asc"
+	}
+	if order != "asc" && order != "desc" {
+		fmt.Println("Неправильный ввод режима сортировки. \nДля сортировку по убыванию напишите desc. \nДля сортировку по возрастанию напишите asc, либо не используйте данный параметр.")
+		return
+	}
 	var files []info
 
 	walkDir(dir, &files)
 
-	sort.Slice(files, func(i, j int) bool {
-		return files[i].size > files[j].size
-	})
+	if len(files) == 0 {
+		return
+	}
+	if order == "asc" {
+		sort.Slice(files, func(i, j int) bool {
+			return files[i].size < files[j].size
+		})
+	} else {
+		sort.Slice(files, func(i, j int) bool {
+			return files[i].size > files[j].size
+		})
+	}
 
 	fmt.Println("Список файлов и папок в директории:", dir)
 	for _, file := range files {
@@ -81,7 +104,7 @@ func formatSize(size float64) (float64, string) {
 func walkDir(dir string, files *[]info) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		fmt.Println("Ошибка при чтении директории :", dir)
+		fmt.Println("Ошибка при чтении директории: ", dir)
 		return
 	}
 
@@ -92,12 +115,12 @@ func walkDir(dir string, files *[]info) {
 			folderSize := getFolderSize(fullPath)
 			*files = append(*files, info{entry.Name(), float64(folderSize), true})
 		} else {
-			info, err := entry.Info()
+			information, err := entry.Info()
 			if err != nil {
 				fmt.Println("Ошибка получения информации о файле ", entry.Name())
 				continue
 			}
-			*files = append(*files, info{info.Name(), float64(info.Size()), false})
+			*files = append(*files, info{information.Name(), float64(information.Size()), false})
 		}
 	}
 }
@@ -126,6 +149,7 @@ func getFolderSize(folderPath string) int64 {
 
 func main() {
 	dirPath := flag.String("dir", "", "")
+	order := flag.String("order", "", "")
 	flag.Parse()
-	printFileSizes(*dirPath)
+	printFileSizes(*dirPath, *order)
 }
