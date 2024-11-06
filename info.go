@@ -1,7 +1,7 @@
 package main
 
 type info struct {
-	name  string
-	size  float64
-	isDir bool
+	Name   string  `json:"name"`
+	Size   float64 `json:"size"`
+	Format string  `json:"format"`
 }
