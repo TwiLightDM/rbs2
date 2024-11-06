@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1 id="currentPath"></h1>
+    <label>Порядок сортировки:</label>
+    <label><input type="radio" name="order" value="asc" checked> По возрастанию</label>
+    <label><input type="radio" name="order" value="desc"> По убыванию</label>
+    
+    <div id="errorMessage"></div>
+    <ul id="fileList"></ul>
+    <button id="backButton" onclick="pastDir()">Назад</button> 
+    
+    <script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif; 
+}
+
+h1 {
+    color: #333; 
+    text-align: center; 
+}
+
+label {
+    font-weight: bold; 
+}
+
+button {
+    background-color: rgb(0, 174, 255); 
+    color: white; 
+    padding: 10px 15px; 
+    border: none;
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-size: 16px; 
+}
+
+button:hover {
+    background-color: #0056b3; 
+}
+
+#errorMessage {
+    color: red; 
+    margin: 10px 0; 
+    font-weight: bold; 
+    text-align: center; 
+}
+
+#fileList {
+    list-style-type: none; 
+    padding: 0;
+}
+
+#fileList li {
+    background-color: #fff;
+    margin: 5px 0; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+}
+
+#fileList li.dir{
+    cursor: pointer;
+}

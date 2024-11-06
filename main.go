@@ -13,12 +13,13 @@ import (
 )
 
 // getFiles - функция для получения информации о файлах в директории.
-func getFiles(dir string, order string) ([]info, error) {
+func getFiles(dir string, order string, w http.ResponseWriter) ([]info, error) {
 	var files []info
 
 	err := walkDir(dir, &files)
 	if err != nil {
 		fmt.Println("Ошибка получения размера папки: ", dir, err)
+		http.Error(w, "Директория не существует", http.StatusBadRequest)
 	}
 
 	if order == "asc" {
@@ -63,14 +64,14 @@ func walkDir(dir string, files *[]info) error {
 				if err != nil {
 					return
 				}
-				*files = append(*files, info{entry.Name(), float64(folderSize), "b"})
+				*files = append(*files, info{entry.Name(), float64(folderSize), "b", true, dir})
 			} else {
 				information, err := entry.Info()
 				if err != nil {
 					fmt.Println("Ошибка получения информации о файле ", entry.Name())
 					return
 				}
-				*files = append(*files, info{information.Name(), float64(information.Size()), "b"})
+				*files = append(*files, info{information.Name(), float64(information.Size()), "b", false, dir})
 			}
 		}(entry, fullPath)
 	}
@@ -82,7 +83,6 @@ func walkDir(dir string, files *[]info) error {
 // getFolderSize - функция для получения общего размера папки и её содержимого
 func getFolderSize(folderPath string) (int64, error) {
 	var size int64
-	size += 4096
 
 	err := filepath.Walk(folderPath, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -154,7 +154,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	order := r.URL.Query().Get("order")
 
 	if dir == "" {
-		http.Error(w, "Ошибка: директория не задана", http.StatusBadRequest)
+		http.Error(w, "Директория не задана", http.StatusBadRequest)
 		return
 	}
 
@@ -163,11 +163,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if order != "asc" && order != "desc" {
-		http.Error(w, "Ошибка: неверный параметр order. Используйте 'asc' или 'desc'", http.StatusBadRequest)
+		http.Error(w, "Неверный параметр order. Используйте 'asc' или 'desc'", http.StatusBadRequest)
 		return
 	}
 
-	files, err := getFiles(dir, order)
+	files, err := getFiles(dir, order, w)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -178,7 +178,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", handler)
+	http.Handle("/", http.FileServer(http.Dir("./")))
+	http.HandleFunc("/files", handler)
 	log.Println("Сервер запущен на http://localhost:8000")
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
