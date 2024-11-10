@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"sync"
+	"unicode/utf8"
 )
 
 // getFiles - функция для получения информации о файлах в директории.
@@ -64,14 +67,14 @@ func walkDir(dir string, files *[]info) error {
 				if err != nil {
 					return
 				}
-				*files = append(*files, info{entry.Name(), float64(folderSize), "b", true, dir})
+				*files = append(*files, info{entry.Name(), float64(folderSize), "b", true})
 			} else {
 				information, err := entry.Info()
 				if err != nil {
 					fmt.Println("Ошибка получения информации о файле ", entry.Name())
 					return
 				}
-				*files = append(*files, info{information.Name(), float64(information.Size()), "b", false, dir})
+				*files = append(*files, info{information.Name(), float64(information.Size()), "b", false})
 			}
 		}(entry, fullPath)
 	}
@@ -177,9 +180,55 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(files)
 }
 
+// loadConfig - функция, для взятие информации из файла конфига
+func loadConfig() (*Config, error) {
+	file, err := os.Open("frontend/config.json")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	config := &Config{}
+	err = json.NewDecoder(file).Decode(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return config, nil
+}
+
+// checkPort - Функция для провки порта, введеного пользователем
+func checkPort(port string) error {
+	if utf8.RuneCountInString(port) != 4 {
+		return errors.New("")
+	}
+
+	_, err := strconv.Atoi(port)
+	if err != nil {
+		return errors.New("")
+	}
+	return nil
+}
+
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("./")))
+	portFlag := flag.String("port", "", "Порт для запуска сервера (должен быть 4-значным, состоящим из цифр). Был использован порт из config файла")
+	flag.Parse()
+
+	var port string
+
+	if checkPort(*portFlag) != nil {
+		flag.Usage()
+		config, err := loadConfig()
+		if err != nil {
+			log.Fatal("Ошибка при загрузке файла конфигурации: ", err)
+		}
+		port = config.Port
+	} else {
+		port = *portFlag
+	}
+
+	http.Handle("/", http.FileServer(http.Dir("./frontend")))
 	http.HandleFunc("/files", handler)
-	log.Println("Сервер запущен на http://localhost:8000")
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	log.Printf("Сервер запущен на http://localhost:%s", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

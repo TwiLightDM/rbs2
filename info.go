@@ -5,5 +5,4 @@ type info struct {
 	Size   float64 `json:"size"`
 	Format string  `json:"format"`
 	IsDir  bool    `json:"isDir"`
-	Path   string  `json:"path"`
 }

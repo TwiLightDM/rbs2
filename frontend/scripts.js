@@ -1,7 +1,20 @@
 let currentDir = '.';
 let previousDir = currentDir; 
 
-// fetchFiles Функция для вывода списка файлов и директорий
+// loadConfig - Функция Загрузка конфигурации из config.json
+async function loadConfig() {
+    const response = await fetch('./config.json');
+    if (response.ok) {
+        const config = await response.json();
+        console.log(config.port);
+        console.log(config.dir);
+        currentDir = config.dir; 
+    } else {
+        console.error('Не удалось загрузить конфигурацию.');
+    }
+}
+
+// fetchFiles - Функция для вывода списка файлов и директорий
 async function fetchFiles() {
     const order = document.querySelector('input[name="order"]:checked').value;
     const response = await fetch(`/files?dir=${encodeURIComponent(currentDir)}&order=${order}`);
@@ -69,7 +82,8 @@ function pastDir(){
     }
 }
 
-window.onload = () => {
+window.onload = async () => {
+    await loadConfig();
     fetchFiles();
     const orderRadios = document.querySelectorAll('input[name="order"]');
     orderRadios.forEach(radio => {
