@@ -45,6 +45,18 @@ button:hover {
     border-radius: 4px; 
 }
 
-#fileList li.dir{
+#fileList li.file {
+    cursor: default;
+}
+
+#fileList li.file:hover {
+    background-color: lightblue; 
+}
+
+#fileList li.dir {
     cursor: pointer;
+}
+
+#fileList li.dir:hover {
+    background-color: rgb(41, 206, 124)
 }

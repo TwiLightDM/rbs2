@@ -1,4 +1,4 @@
 {
-    "dir": "./frontend",
+    "dir": ".",
     "port": "8888"
 }

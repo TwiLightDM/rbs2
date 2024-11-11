@@ -1,7 +1,7 @@
 let currentDir = '.';
 let previousDir = currentDir; 
 
-// loadConfig - Функция Загрузка конфигурации из config.json
+// loadConfig - Функция для загрузки конфигурации из config.json
 async function loadConfig() {
     const response = await fetch('./config.json');
     if (response.ok) {
@@ -36,6 +36,7 @@ async function fetchFiles() {
                     listItem.classList.add('dir');
                     listItem.onclick = () => handleFileClick(file);
                 }
+                listItem.classList.add('file');
                 fileList.appendChild(listItem);
             });
         } else {
