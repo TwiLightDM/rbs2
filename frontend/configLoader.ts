@@ -6,7 +6,7 @@ export let previousDir: string = "";
 
 // loadConfig - Функция для загрузки конфигурации из config.json
 export async function loadConfig() {
-    const response = await fetch('../config.json');
+    const response = await fetch('./config.json');
     if (response.ok) {
         const config = await response.json();
         console.log(config.path);

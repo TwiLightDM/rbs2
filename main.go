@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -180,17 +181,47 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(files)
+
+	go func() {
+		err = sendDirToApache(dir)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+}
+
+// sendDirToApache - отправляет dir на Apache сервер для PHP страницы
+func sendDirToApache(dir string) error {
+	// Подготовка данных для отправки
+	data := result{
+		Path: dir,
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("ошибка при маршаллинге данных: %v", err)
+	}
+
+	phpURL := "http://localhost:3000/frontend/stat.php"
+
+	resp, err := http.Post(phpURL, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("ошибка при отправке данных на PHP: %v", err)
+	}
+	defer resp.Body.Close()
+
+	return nil
 }
 
 // loadConfig - функция, для взятие информации из файла конфига
-func loadConfig() (*Config, error) {
-	file, err := os.Open("frontend/config.json")
+func loadConfig() (*config, error) {
+	file, err := os.Open("frontend/dist/config.json")
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	config := &Config{}
+	config := &config{}
 	err = json.NewDecoder(file).Decode(config)
 	if err != nil {
 		return nil, err

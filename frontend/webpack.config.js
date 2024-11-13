@@ -2,7 +2,10 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: './main.ts',
+  entry: {
+    index: './main.ts',   
+    stat: './stat.ts', 
+  },
   output: {
     filename: "[name].[contenthash].js",
     path: path.resolve(__dirname, 'dist'),
@@ -28,6 +31,10 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './index.html', 
       filename: 'index.html', 
+    }),
+    new HtmlWebpackPlugin({
+      template: './stat.html', 
+      filename: 'stat.html', 
     }),
   ],
   mode: 'development',

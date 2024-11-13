@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+}
+.graf {
+    height: 300px;
+}
+.container {
+    width: 80%;
+    margin: 50px auto;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border: 2px solid black;
+}
+
+th {
+    background-color: #f4f4f4;
+}

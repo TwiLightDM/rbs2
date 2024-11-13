@@ -1,5 +1,5 @@
 package main
 
-type Config struct {
+type config struct {
 	Port string `json:"port"`
 }

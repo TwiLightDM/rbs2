@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <title>File Manager</title>
+    <link rel="stylesheet" href="../style.css">
 </head>
 <body>
     <h1 id="currentPath"></h1>
@@ -13,7 +13,8 @@
     <label><input type="radio" name="order" value="desc"> По убыванию</label>
     
     <div id="errorMessage"></div>
-    <button id="backButton" onclick="pastDir()">Назад</button> 
+    <button id="backButton">Назад</button> 
+    <button id="stat"onclick="window.location.href='stat.html';">Статистика</button>
     <ul id="fileList"></ul>
    
 </body>
