@@ -1,14 +1,26 @@
 let currentDir = '.';
-let previousDir = currentDir; 
+let previousDir; 
 
 // loadConfig - Функция для загрузки конфигурации из config.json
 async function loadConfig() {
     const response = await fetch('./config.json');
     if (response.ok) {
         const config = await response.json();
+        console.log(config.path);
         console.log(config.port);
         console.log(config.dir);
-        currentDir = config.dir; 
+        currentDir = config.dir;
+
+        let slashCount = 0;
+        for (let i = 0; i < currentDir.length; i++) {
+            if (currentDir[i] === '/') {
+                slashCount++;
+            }
+        }
+        if (slashCount > 1) {
+            previousDir = currentDir.substring(0, currentDir.lastIndexOf('/'));
+        }
+        console.log(previousDir) 
     } else {
         console.error('Не удалось загрузить конфигурацию.');
     }
@@ -23,26 +35,47 @@ async function fetchFiles() {
     updateBackButton(); 
     if (response.ok) {
         const files = await response.json();
+        const fileList = document.getElementById('fileList');
         if (files !== null){
-            const fileList = document.getElementById('fileList');
-
-            fileList.innerHTML = ''; 
-            errorMessage.textContent = ''; 
-
+            if(fileList != null){
+                fileList.innerHTML = ''; 
+            }
+            if(errorMessage != null){
+                errorMessage.textContent = ''; 
+            }
             files.forEach(file => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${file.name} - ${file.size} ${file.format}`;
+                listItem.classList.add('file-item');
+                
+                const fileInfo = document.createElement('span');
+                fileInfo.textContent = `${file.name} - ${file.size} ${file.format}`;
+                
+                const fileType = document.createElement('div');
+                fileType.classList.add('file-type');
+                fileType.innerHTML = file.isDir ? "<span>Директория</span>" : "<span>Файл</span>";
+
+                listItem.appendChild(fileInfo);
+                listItem.appendChild(fileType);
+
                 if (file.isDir) {
                     listItem.classList.add('dir');
                     listItem.onclick = () => handleFileClick(file);
                 }
                 listItem.classList.add('file');
-                fileList.appendChild(listItem);
+                if (fileList != null){
+                    fileList.appendChild(listItem);
+                }
+                
             });
         } else {
             const errorText = await response.text();
-            errorMessage.textContent = `Ошибка: ${response.status} - ${errorText}`; 
-            fileList.innerHTML = '';
+            if (errorMessage != null){
+                errorMessage.textContent = `Ошибка: ${response.status} - ${errorText}`; 
+            }
+            if (fileList != null){
+                fileList.innerHTML = '';
+            }
+            
         }
     }
 }
@@ -51,8 +84,6 @@ async function fetchFiles() {
 function handleFileClick(file) {
     if (file.isDir) { 
         previousDir = currentDir;
-        console.log(previousDir)
-        console.log(currentDir)
         currentDir = `${currentDir}/${file.name}`;
         fetchFiles();
     }
@@ -60,7 +91,9 @@ function handleFileClick(file) {
 // updateCurrentPath Фунция для отображения нынешней директории
 function updateCurrentPath() {
     const path = document.getElementById("currentPath")
-    path.textContent = currentDir
+    if(path != null){
+        path.textContent = currentDir
+    }
 }
 
 // handleOrderChange Функция для обработки изменения порядка сортировки
@@ -71,14 +104,29 @@ function handleOrderChange() {
 // updateBackButton Функция для изменения состояния кнопки
 function updateBackButton() {
     const backButton = document.getElementById('backButton');
-    backButton.style.display = (currentDir === '.') ? 'none' : 'block'; 
+    if (backButton != null){
+        backButton.style.display = (currentDir === '.') ? 'none' : 'block'; 
+    }
+}
+
+// checkPastDir Функция для проверки возможности вернуться в предыдущую директорию
+function checkPastDir(){
+    let slashCount = 0;
+    for (let i = 0; i < currentDir.length; i++) {
+        if (currentDir[i] === '/') {
+            slashCount++;
+        }
+    }
+    if (slashCount > 1) {
+        previousDir = currentDir.substring(0, currentDir.lastIndexOf('/'));
+    } 
 }
 
 // pastDir Функция для возврата на предыдущую директорию  
 function pastDir(){
     if (previousDir !== null) {
         currentDir = previousDir; 
-        previousDir = currentDir.substring(0, currentDir.lastIndexOf('/'));
+        checkPastDir();
         fetchFiles(); 
     }
 }

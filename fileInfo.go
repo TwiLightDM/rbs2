@@ -1,6 +1,6 @@
 package main
 
-type info struct {
+type fileInfo struct {
 	Name   string  `json:"name"`
 	Size   float64 `json:"size"`
 	Format string  `json:"format"`

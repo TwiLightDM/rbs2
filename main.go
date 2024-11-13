@@ -18,8 +18,8 @@ import (
 )
 
 // getFiles - функция для получения информации о файлах в директории.
-func getFiles(dir string, order string, w http.ResponseWriter) ([]info, error) {
-	var files []info
+func getFiles(dir string, order string, w http.ResponseWriter) ([]fileInfo, error) {
+	var files []fileInfo
 
 	err := walkDir(dir, &files)
 	if err != nil {
@@ -47,7 +47,7 @@ func getFiles(dir string, order string, w http.ResponseWriter) ([]info, error) {
 }
 
 // walkDir - рекурсивная функция для обхода директории
-func walkDir(dir string, files *[]info) error {
+func walkDir(dir string, files *[]fileInfo) error {
 
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -69,14 +69,14 @@ func walkDir(dir string, files *[]info) error {
 				if err != nil {
 					return
 				}
-				*files = append(*files, info{entry.Name(), float64(folderSize), "b", true})
+				*files = append(*files, fileInfo{entry.Name(), float64(folderSize), "b", true})
 			} else {
 				information, err := entry.Info()
 				if err != nil {
 					fmt.Println("Ошибка получения информации о файле ", entry.Name())
 					return
 				}
-				*files = append(*files, info{information.Name(), float64(information.Size()), "b", false})
+				*files = append(*files, fileInfo{information.Name(), float64(information.Size()), "b", false})
 			}
 		}(entry, fullPath)
 	}
@@ -203,14 +203,14 @@ func loadConfig() (*Config, error) {
 func defPort(port string) (string, error) {
 	if utf8.RuneCountInString(port) == 4 {
 		_, err := strconv.Atoi(port)
-		if err != nil {
+		if err == nil {
 			return port, nil
 		}
 	}
 	if port != "" {
 		flag.Usage()
 	}
-
+	fmt.Println(port)
 	config, err := loadConfig()
 	if err != nil {
 		return "", err
@@ -223,7 +223,7 @@ func defPort(port string) (string, error) {
 // setupHandlers - Функция для настройки маршрутизатора
 func setupHandlers() http.Handler {
 	hand := http.NewServeMux()
-	hand.Handle("/", http.FileServer(http.Dir("./frontend")))
+	hand.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
 	hand.HandleFunc("/files", handler)
 	return hand
 }
@@ -256,7 +256,7 @@ func main() {
 	go func() {
 		reader := bufio.NewReader(os.Stdin)
 		for {
-			fmt.Print("Введите 'exit' для завершения: ")
+			log.Print("Введите 'exit' для завершения: ")
 			text, _ := reader.ReadString('\n')
 			if text == "exit\n" {
 				if err := server.Close(); err != nil {
@@ -276,4 +276,5 @@ func main() {
 
 	<-exitChan
 	log.Println("Сервер завершил работу.")
+
 }
