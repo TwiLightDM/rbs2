@@ -192,9 +192,22 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}()
 }
 
+func defPhpUrl() (string, error) {
+	config, err := loadConfig()
+	if err != nil {
+		return "", err
+	}
+
+	phpUrl := config.PhpURL
+	return phpUrl, nil
+}
+
 // sendDirToApache - отправляет dir на Apache сервер для PHP страницы
 func sendDirToApache(dir string, size int, time time.Duration) error {
-
+	phpURL, err := defPhpUrl()
+	if err != nil {
+		return fmt.Errorf("ошибка загрузки config файла: %s", err)
+	}
 	sizeInt, sizeStr := formatSize(float64(size))
 	stringSize := fmt.Sprint(sizeInt, sizeStr)
 
@@ -210,8 +223,6 @@ func sendDirToApache(dir string, size int, time time.Duration) error {
 	if err != nil {
 		return fmt.Errorf("ошибка при маршаллинге данных: %v", err)
 	}
-
-	phpURL := "http://192.168.77.158/"
 
 	resp, err := http.Post(phpURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -230,7 +241,7 @@ func sendDirToApache(dir string, size int, time time.Duration) error {
 
 // loadConfig - функция, для взятие информации из файла конфига
 func loadConfig() (*config, error) {
-	file, err := os.Open("frontend/dist/config.json")
+	file, err := os.Open("config.json")
 	if err != nil {
 		return nil, err
 	}

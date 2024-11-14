@@ -1,4 +1,5 @@
 {
     "dir": "/home/dmitry",
-    "port": "8999"
+    "port": "8999",
+    "phpUrl": "http://192.168.77.158/"
 }
