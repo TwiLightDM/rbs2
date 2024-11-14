@@ -15,11 +15,12 @@ import (
 	"strconv"
 	"sync"
 	"syscall"
+	"time"
 	"unicode/utf8"
 )
 
 // getFiles - функция для получения информации о файлах в директории.
-func getFiles(dir string, order string, w http.ResponseWriter) ([]fileInfo, error) {
+func getFiles(dir string, order string, w http.ResponseWriter) ([]fileInfo, int, error) {
 	var files []fileInfo
 
 	err := walkDir(dir, &files)
@@ -37,14 +38,15 @@ func getFiles(dir string, order string, w http.ResponseWriter) ([]fileInfo, erro
 			return files[i].Size > files[j].Size
 		})
 	}
-
+	var fullSize int
 	for i := 0; i < len(files); i++ {
+		fullSize += int(files[i].Size)
 		size, format := formatSize(files[i].Size)
 		files[i].Size = size
 		files[i].Format = format
 	}
 
-	return files, nil
+	return files, fullSize, nil
 }
 
 // walkDir - рекурсивная функция для обхода директории
@@ -158,7 +160,7 @@ func formatSize(size float64) (float64, string) {
 func handler(w http.ResponseWriter, r *http.Request) {
 	dir := r.URL.Query().Get("dir")
 	order := r.URL.Query().Get("order")
-
+	timer := time.Now()
 	if dir == "" {
 		http.Error(w, "Директория не задана", http.StatusBadRequest)
 		return
@@ -173,7 +175,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files, err := getFiles(dir, order, w)
+	files, size, err := getFiles(dir, order, w)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -183,7 +185,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(files)
 
 	go func() {
-		err = sendDirToApache(dir)
+		err = sendDirToApache(dir, size, time.Since(timer))
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -191,24 +193,37 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 // sendDirToApache - отправляет dir на Apache сервер для PHP страницы
-func sendDirToApache(dir string) error {
-	// Подготовка данных для отправки
+func sendDirToApache(dir string, size int, time time.Duration) error {
+
+	sizeInt, sizeStr := formatSize(float64(size))
+	stringSize := fmt.Sprint(sizeInt, sizeStr)
+
 	data := result{
 		Path: dir,
+		Size: stringSize,
+		Time: time,
 	}
+
+	fmt.Println(data)
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return fmt.Errorf("ошибка при маршаллинге данных: %v", err)
 	}
 
-	phpURL := "http://localhost:3000/frontend/stat.php"
+	phpURL := "http://192.168.77.158/"
 
 	resp, err := http.Post(phpURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return fmt.Errorf("ошибка при отправке данных на PHP: %v", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		fmt.Println("json получен", resp.Status)
+	} else {
+		return fmt.Errorf("сервер вернул ошибку: %d %s", resp.StatusCode, resp.Status)
+	}
 
 	return nil
 }

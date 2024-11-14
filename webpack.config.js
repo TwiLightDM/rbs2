@@ -1,14 +1,15 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
-    index: './main.ts',   
-    stat: './stat.ts', 
+    index: './frontend/src/scripts/main.ts',   
+    stat: './frontend/src/scripts/stat.ts', 
   },
   output: {
     filename: "[name].[contenthash].js",
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname+"/frontend", 'dist'),
     clean: true,
   },
   resolve: {
@@ -29,12 +30,17 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './index.html', 
+      template: './frontend/src/pages/index.html', 
       filename: 'index.html', 
     }),
     new HtmlWebpackPlugin({
-      template: './stat.html', 
+      template: './frontend/src/pages/stat.html', 
       filename: 'stat.html', 
+    }),
+    new CopyWebpackPlugin({
+      patterns:[
+        {from: './config.json', to: 'config.json'}
+      ],
     }),
   ],
   mode: 'development',

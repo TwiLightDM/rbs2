@@ -1,5 +1,5 @@
 import { fetchFiles } from './fileFetcher';
-import {FileInfo} from './interfaces/iFileInfo';
+import {FileInfo} from '../interfaces/iFileInfo';
 
 export let currentDir: string = "";
 export let previousDir: string = "";
@@ -39,7 +39,7 @@ export function updateCurrentPath() {
 export function updateBackButton() {
     const backButton = document.getElementById('backButton');
     if (backButton != null){
-        backButton.style.display = (currentDir === '.') ? 'none' : 'block'; 
+        backButton.style.display = (currentDir === '.' || currentDir === '/') ? 'none' : 'inline'; 
     }
 }
 
@@ -53,12 +53,21 @@ export function checkPastDir(){
     }
     if (slashCount > 1) {
         previousDir = currentDir.substring(0, currentDir.lastIndexOf('/'));
-    } 
+    } else{
+        if (currentDir.charAt(0)=='.'){
+            previousDir = '.';
+        }
+
+        if (currentDir == '/home'){
+            previousDir = '/';
+        }
+        
+    }
 }
 
 //  Функция для возврата на предыдущую директорию  
 document.getElementById('backButton')?.addEventListener('click', () => {
-    if (previousDir !== null) {
+    if (previousDir != null) {
         currentDir = previousDir; 
         checkPastDir();
         fetchFiles(); 

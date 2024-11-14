@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Manager</title>
     <link rel="stylesheet" href="../style.css">
-<script defer src="index.923b1134679a0c777d03.js"></script><script defer src="stat.808dfc8e12ab7202d120.js"></script></head>
+<script defer src="index.934873f0ebbfb9419371.js"></script><script defer src="stat.3ac1e0ee8ef1b18e1995.js"></script></head>
 <body>
     <h1 id="currentPath"></h1>
     <label>Порядок сортировки:</label>
@@ -14,8 +14,17 @@
     
     <div id="errorMessage"></div>
     <button id="backButton">Назад</button> 
-    <button id="stat"onclick="window.location.href='stat.html';">Статистика</button>
-    <ul id="fileList"></ul>
-   
+    <button id="stat" onclick="window.location.href='stat.html';">Статистика</button>
+    <ul id=""></ul>
+    <table id="fileTable">
+        <thead>
+            <tr>
+                <th>Имя файла</th>
+                <th>Размер файла</th>
+                <th>Тип</th>
+            </tr>
+        </thead>
+        <tbody id="fileTableBody"></tbody>
+    </table>
 </body>
 </html>

@@ -1,0 +1,78 @@
+body {
+    font-family: Arial, sans-serif; 
+}
+
+h1 {
+    color: #333; 
+    text-align: center; 
+}
+
+label {
+    font-weight: bold; 
+}
+
+button {
+    margin-top: 10px;
+    background-color: rgb(0, 174, 255); 
+    color: white; 
+    padding: 10px 15px; 
+    border: none;
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-size: 16px; 
+    display: inline;
+}
+
+button:hover {
+    background-color: #0056b3; 
+}
+
+#errorMessage {
+    color: red; 
+    margin: 10px 0; 
+    font-weight: bold; 
+    text-align: center; 
+}
+
+#fileTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#fileTable th,
+#fileTable td {
+    padding: 10px;
+    border: 2px solid black;
+    text-align: left;
+}
+
+#fileTable th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+#fileTable tr.file:hover {
+    background-color: lightblue;
+}
+
+#fileTable tr.dir {
+    cursor: pointer;
+}
+
+#fileTable tr.dir:hover {
+    background-color: rgb(41, 206, 124);
+}
+
+#fileTable tr.file-item {
+    transition: background-color 0.3s;
+}
+
+#fileTable tr.file-item td {
+    color: black;
+}
+
+#fileTable tr.file-item td span {
+    color: black;
+    font-weight: bold;
+}

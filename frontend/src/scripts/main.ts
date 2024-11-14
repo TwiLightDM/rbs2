@@ -1,6 +1,6 @@
 import { loadConfig } from './configLoader';
 import { fetchFiles } from './fileFetcher';
-import './style.css'; 
+import '../style.css'; 
 
 async function main(){
     await loadConfig();
