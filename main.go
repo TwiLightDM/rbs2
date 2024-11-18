@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -214,7 +215,7 @@ func sendDirToApache(dir string, size int, time time.Duration) error {
 	data := result{
 		Path: dir,
 		Size: stringSize,
-		Time: time,
+		Time: time.String(),
 	}
 
 	fmt.Println(data)
@@ -230,10 +231,16 @@ func sendDirToApache(dir string, size int, time time.Duration) error {
 	}
 	defer resp.Body.Close()
 
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("ошибка при чтении ответа от PHP: %v", err)
+	}
+
 	if resp.StatusCode == http.StatusOK {
-		fmt.Println("json получен", resp.Status)
+		fmt.Println("JSON получен:", resp.Status)
+		fmt.Println("Ответ от сервера:", string(body))
 	} else {
-		return fmt.Errorf("сервер вернул ошибку: %d %s", resp.StatusCode, resp.Status)
+		return fmt.Errorf("сервер вернул ошибку: %d %s. Ответ: %s", resp.StatusCode, resp.Status, string(body))
 	}
 
 	return nil

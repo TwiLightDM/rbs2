@@ -30,6 +30,7 @@
     "camel-case": "^4.1.2",
     "caniuse-lite": "^1.0.30001680",
     "chalk": "^4.1.2",
+    "chart.js": "^4.4.6",
     "chrome-trace-event": "^1.0.4",
     "clean-css": "^5.3.3",
     "clone-deep": "^4.0.1",

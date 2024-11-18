@@ -46,5 +46,8 @@ export async function fetchFiles() {
             errorMessage.textContent = `Ошибка: ${response.status} - ${errorText}`; 
             fileTableBody.innerHTML = '';
         }
+    } else{
+        const errorText = await response.text();
+        errorMessage.textContent = `Ошибка: ${response.status} - ${errorText}. Вернитесь назад`; 
     }
 }

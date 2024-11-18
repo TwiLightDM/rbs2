@@ -32,10 +32,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './frontend/src/pages/index.html', 
       filename: 'index.html', 
+      chunks: ['index'],
     }),
     new HtmlWebpackPlugin({
       template: './frontend/src/pages/stat.html', 
       filename: 'stat.html', 
+      chunks: ['stat'],
     }),
     new CopyWebpackPlugin({
       patterns:[
