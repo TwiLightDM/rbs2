@@ -2,6 +2,19 @@ import { Data } from '../interfaces/iData';
 import '../stat.css';
 import Chart from 'chart.js/auto';
 
+var phpUrl: string;
+
+// loadPhpUrl Функция для загрзки пути к php серверу
+export async function loadPhpUrl() {
+    const response = await fetch('./config.json');
+    if (response.ok) {
+        const config = await response.json();
+        phpUrl = config.phpUrl;
+    } else {
+        console.error('Не удалось загрузить конфигурацию.');
+    }
+}
+
 // convertToBytes Функция для преобразования размера в байты
 function convertToBytes(size: string): number {
     const value = parseFloat(size); 
@@ -71,11 +84,11 @@ function renderChart(sizes: Number[], times: Number[]) {
 }
 
 // loadData Функция для вывода таблицы из бд 
-export function loadData() {
+export async function loadData() {
     let times: Number[] = []
     let sizes: Number[] = []
-
-    fetch('http://192.168.77.158')
+    await loadPhpUrl();
+    fetch(phpUrl)
         .then((response: Response) => response.json())  
         .then((data: Data[]) => {
             

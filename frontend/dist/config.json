@@ -1,5 +1,5 @@
 {
     "dir": "/home",
     "port": "8995",
-    "phpUrl": "http://192.168.77.158"
+    "phpUrl": "http://192.168.77.158/index.php"
 }
