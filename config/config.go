@@ -1,6 +1,6 @@
-package main
+package config
 
-type config struct {
+type Config struct {
 	Port   string `json:"port"`
 	PhpURL string `json:"phpUrl"`
 }

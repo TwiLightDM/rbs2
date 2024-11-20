@@ -49,6 +49,7 @@ function convertToMilliseconds(time: string): number {
     return 0;
 }
 
+// sort Функция для сортировки массивов размера и времени, где основным масивом является время
 function sort(sizes: Number[], times: Number[]){
     for (let i = 0; i < times.length - 1; i++){
         for (let j = 0; j < times.length - 1 - i; j++){

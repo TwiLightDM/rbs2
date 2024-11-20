@@ -17,7 +17,7 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $sql = "SELECT * FROM response";
+    $sql = "SELECT id, path, size, time, date FROM response";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -1,9 +1,11 @@
 body {
     font-family: Arial, sans-serif;
 }
+
 .graf {
     height: 300px;
 }
+
 .container {
     width: 100%;
     margin: 50px auto;

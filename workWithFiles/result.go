@@ -1,6 +1,6 @@
-package main
+package workWithFiles
 
-type result struct {
+type Result struct {
 	Path string `json:"path"`
 	Size string `json:"size"`
 	Time string `json:"time"`
