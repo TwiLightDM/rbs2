@@ -75,7 +75,7 @@ export function loadData() {
     let times: Number[] = []
     let sizes: Number[] = []
 
-    fetch('http://localhost:3000/frontend/src/index.php')
+    fetch('http://192.168.77.158')
         .then((response: Response) => response.json())  
         .then((data: Data[]) => {
             
