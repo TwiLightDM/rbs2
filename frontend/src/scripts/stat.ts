@@ -28,13 +28,12 @@ function convertToBytes(size: string): number {
 function convertToMilliseconds(time: string): number {
     if (time.endsWith('ms')) {
         return parseInt(time.replace('ms', ''), 10);
-    } else if (time.endsWith('s')) {
-        return parseFloat(time.replace('s', '')) * 1000;
-    } else if (time.endsWith('µs')){
+    } else if (time.endsWith('µs')) {
         return parseFloat(time.replace('µs', '')) / 1000;
-    } else{
-        return 0;
+    } else if (time.endsWith('s')){
+        return parseFloat(time.replace('s', '')) * 1000;
     }
+    return 0;
 }
 
 function sort(sizes: Number[], times: Number[]){
