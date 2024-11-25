@@ -1,5 +1,5 @@
-import { fetchFiles } from './fileFetcher';
 import {FileInfo} from '../interfaces/iFileInfo';
+import { modelFetch } from '../model/model';
 
 export let currentDir: string = "";
 export let previousDir: string = "";
@@ -23,13 +23,13 @@ export function handleFileClick(file: FileInfo){
     if (file.isDir) { 
         previousDir = currentDir;
         currentDir = `${currentDir}/${file.name}`;
-        fetchFiles();
+        modelFetch();
     }
 }
 
 // updateCurrentPath Фунция для отображения нынешней директории
 export function updateCurrentPath() {
-    const path = document.getElementById("currentPath")
+    const path = document.querySelector(".currentPath") as HTMLHeadingElement | null;
     if(path != null){
         path.textContent = currentDir
     }
@@ -37,7 +37,7 @@ export function updateCurrentPath() {
 
 // updateBackButton Функция для изменения состояния кнопки
 export function updateBackButton() {
-    const backButton = document.getElementById('backButton');
+    const backButton = document.querySelector(".backButton") as HTMLHeadingElement | null;
     if (backButton != null){
         backButton.style.display = (currentDir === '.' || currentDir === '/') ? 'none' : 'inline'; 
     }
@@ -66,10 +66,23 @@ export function checkPastDir(){
 }
 
 //  Функция для возврата на предыдущую директорию  
-document.getElementById('backButton')?.addEventListener('click', () => {
+document.querySelector('.backButton')?.addEventListener('click', () => {
     if (previousDir != null) {
         currentDir = previousDir; 
         checkPastDir();
-        fetchFiles(); 
+        modelFetch(); 
     }
 });
+
+// handleTableClick Функция для обработки клика на элемент таблицы
+export function handleTableClick(event: MouseEvent, files: FileInfo[]) {
+    const target = event.target as HTMLElement;
+    const row = target.closest('tr') as HTMLTableRowElement;
+
+    if (row && row.classList.contains('dir')) {
+        const index = row.dataset.index;
+        if (index !== undefined && files[+index]) {
+            handleFileClick(files[+index]);
+        }
+    }
+}

@@ -1,8 +1,10 @@
-import { Data } from '../interfaces/iData';
 import '../stat.css';
-import Chart from 'chart.js/auto';
+import { Data } from '../interfaces/iData';
+import { renderChart } from './render';
 
 var phpUrl: string;
+const MINI_MICRO_SECONDS = 1000
+const SIZE_OF_MEMORY = 1024
 
 // loadPhpUrl Функция для загрзки пути к php серверу
 export async function loadPhpUrl() {
@@ -16,7 +18,7 @@ export async function loadPhpUrl() {
 }
 
 // convertToBytes Функция для преобразования размера в байты
-function convertToBytes(size: string): number {
+export function convertToBytes(size: string): number {
     const value = parseFloat(size); 
     const unit = size.match(/[a-zA-Z]+$/)?.[0]; 
 
@@ -25,32 +27,32 @@ function convertToBytes(size: string): number {
         case 'b':
             return value;
         case 'kb':
-            return value * 1024;
+            return value * SIZE_OF_MEMORY;
         case 'mb':
-            return value * 1024 ** 2;
+            return value * SIZE_OF_MEMORY ** 2;
         case 'gb':
-            return value * 1024 ** 3;
+            return value * SIZE_OF_MEMORY ** 3;
         case 'tb':
-            return value * 1024 ** 4;
+            return value * SIZE_OF_MEMORY ** 4;
         default:
             return value; 
     }
 }
 
 // convertToMilliseconds Функция для преобразования времени в миллисекунды
-function convertToMilliseconds(time: string): number {
+export function convertToMilliseconds(time: string): number {
     if (time.endsWith('ms')) {
         return parseInt(time.replace('ms', ''), 10);
     } else if (time.endsWith('µs')) {
-        return parseFloat(time.replace('µs', '')) / 1000;
+        return parseFloat(time.replace('µs', '')) / MINI_MICRO_SECONDS;
     } else if (time.endsWith('s')){
-        return parseFloat(time.replace('s', '')) * 1000;
+        return parseFloat(time.replace('s', '')) * MINI_MICRO_SECONDS;
     }
     return 0;
 }
 
-// sort Функция для сортировки массивов размера и времени, где основным масивом является время
-function sort(sizes: Number[], times: Number[]){
+// sort Функция для сортировки массивов размера и времени, где основным маcсивом является время
+export function sort(sizes: Number[], times: Number[]){
     for (let i = 0; i < times.length - 1; i++){
         for (let j = 0; j < times.length - 1 - i; j++){
             if (times[j] > times[j + 1]) {
@@ -59,29 +61,6 @@ function sort(sizes: Number[], times: Number[]){
             }
         }
     }
-}
-// renderChart Функция для отображения графика
-function renderChart(sizes: Number[], times: Number[]) {
-
-    const ctx = document.getElementById('graf') as HTMLCanvasElement;
-    new Chart(ctx, {
-        type: 'line', 
-        data: {
-            labels: times, 
-            datasets: [{
-                data: sizes, 
-                backgroundColor: ['rgba(255, 99, 132, 0.2)'],
-                borderColor: ['rgba(255, 99, 132, 1)'],
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
 }
 
 // loadData Функция для вывода таблицы из бд 
@@ -92,10 +71,11 @@ export async function loadData() {
     fetch(phpUrl)
         .then((response: Response) => response.json())  
         .then((data: Data[]) => {
-            
-            const tableBody = document.getElementById('fileTableBody') as HTMLElement;
-            tableBody.innerHTML = '';  
-
+            const tableBody = document.querySelector(".fileTable__tableRow") as HTMLHeadingElement | null;
+            if (tableBody !== null){
+                tableBody.innerHTML = '';  
+            }
+        
             data.forEach((item: Data, index: number) => {
                 const row = document.createElement('tr');
 
@@ -118,8 +98,10 @@ export async function loadData() {
                 const dateCell = document.createElement('td');
                 dateCell.textContent = item.date;
                 row.appendChild(dateCell);
-
-                tableBody.appendChild(row);
+                
+                if (tableBody !== null){
+                    tableBody.appendChild(row);
+                }
                 
                 sizes[index] = convertToBytes(item.size);
                 

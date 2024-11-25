@@ -4,19 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Manager</title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../index.css">
 </head>
 <body>
-    <h1 id="currentPath"></h1>
+    <h1 class="currentPath"></h1>
     <label>Порядок сортировки:</label>
     <label><input type="radio" name="order" value="asc" checked> По возрастанию</label>
     <label><input type="radio" name="order" value="desc"> По убыванию</label>
     
-    <div id="errorMessage"></div>
-    <button id="backButton">Назад</button> 
-    <button id="stat" onclick="window.location.href='stat.html';">Статистика</button>
-    <ul id=""></ul>
-    <table id="fileTable">
+    <div class="errorMessage"></div>
+    <button class="backButton">Назад</button> 
+    <button class="stat" onclick="window.location.href='stat.html';">Статистика</button>
+    <table class="fileTable">
         <thead>
             <tr>
                 <th>Имя файла</th>
@@ -24,7 +23,7 @@
                 <th>Тип</th>
             </tr>
         </thead>
-        <tbody id="fileTableBody"></tbody>
+        <tbody class="fileTable__tableRow"></tbody>
     </table>
 </body>
 </html>
