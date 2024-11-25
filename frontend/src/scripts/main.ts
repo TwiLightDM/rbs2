@@ -1,14 +1,17 @@
 import '../index.css'; 
-import { loadConfig } from './configLoader';
-import { modelFetch } from '../model/model';
+import { Request } from '../model/Request';
+import { ConfigLoader } from './configLoader';
+
+export let request = new Request();
+export let config = new ConfigLoader();
 
 async function main(){
-    await loadConfig();
-    modelFetch();
+    await config.loadConfig();
+    request.fetchData();
 
     const orderRadios: NodeListOf<HTMLInputElement> = document.querySelectorAll('input[name="order"]');
     orderRadios.forEach(radio => {
-        radio.addEventListener('change', () => modelFetch());
+        radio.addEventListener('change', () => request.fetchData());
     });
 }
 

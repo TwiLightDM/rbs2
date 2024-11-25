@@ -1,4 +1,3 @@
-import {handleTableClick} from './configLoader';
 import { FileInfo } from '../interfaces/iFileInfo';
 
 import {
@@ -10,6 +9,7 @@ import {
     LineController,
 
 } from 'chart.js';
+import { config } from './main';
 
 Chart.register(
     CategoryScale,
@@ -54,7 +54,7 @@ export function renderTable(files: FileInfo[] | null) {
         });
 
         if (!fileTableBody.dataset.listenerAttached) {
-            fileTableBody.addEventListener('click', (event) => handleTableClick(event, files));
+            fileTableBody.addEventListener('click', (event) => config.handleTableClick(event, files));
             fileTableBody.dataset.listenerAttached = 'true';
         }
     } else {

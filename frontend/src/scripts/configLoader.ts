@@ -1,88 +1,90 @@
 import {FileInfo} from '../interfaces/iFileInfo';
-import { modelFetch } from '../model/model';
+import { request, config } from './main';
 
-export let currentDir: string = "";
-export let previousDir: string = "";
+export class ConfigLoader{
+    public currentDir: string = "";
+    public previousDir: string = "";
 
-// loadConfig - Функция для загрузки конфигурации из config.json
-export async function loadConfig() {
+    // loadConfig - Метод для загрузки конфигурации из config.json
+    async loadConfig() {
     const response = await fetch('./config.json');
     if (response.ok) {
         const config = await response.json();
         console.log(config.path);
         console.log(config.dir);
-        currentDir = config.dir;
-        checkPastDir()
+        this.currentDir = config.dir;
+        this.checkPastDir()
     } else {
         console.error('Не удалось загрузить конфигурацию.');
     }
 }
 
-// handleFileClick Функция для обработки клика на файл или папку
-export function handleFileClick(file: FileInfo){
-    if (file.isDir) { 
-        previousDir = currentDir;
-        currentDir = `${currentDir}/${file.name}`;
-        modelFetch();
-    }
+// handleFileClick Метод для обработки клика на файл или папку
+    handleFileClick(file: FileInfo){
+        if (file.isDir) { 
+            this.previousDir = this.currentDir;
+            this.currentDir = `${this.currentDir}/${file.name}`;
+            request.fetchData();
+        }
 }
 
-// updateCurrentPath Фунция для отображения нынешней директории
-export function updateCurrentPath() {
-    const path = document.querySelector(".currentPath") as HTMLHeadingElement | null;
-    if(path != null){
-        path.textContent = currentDir
-    }
+// updateCurrentPath Метод для отображения нынешней директории
+    updateCurrentPath() {
+        const path = document.querySelector(".currentPath") as HTMLHeadingElement | null;
+        if(path != null){
+            path.textContent = this.currentDir
+        }
 }
 
-// updateBackButton Функция для изменения состояния кнопки
-export function updateBackButton() {
-    const backButton = document.querySelector(".backButton") as HTMLHeadingElement | null;
-    if (backButton != null){
-        backButton.style.display = (currentDir === '.' || currentDir === '/') ? 'none' : 'inline'; 
-    }
+// updateBackButton Метод для изменения состояния кнопки
+    updateBackButton() {
+        const backButton = document.querySelector(".backButton") as HTMLHeadingElement | null;
+        if (backButton != null){
+            backButton.style.display = (this.currentDir === '.' || this.currentDir === '/') ? 'none' : 'inline'; 
+        }
 }
 
-// checkPastDir Функция для проверки возможности вернуться в предыдущую директорию
-export function checkPastDir(){
-    let slashCount = 0;
-    for (let i = 0; i < currentDir.length; i++) {
-        if (currentDir[i] === '/') {
-            slashCount++;
+// checkPastDir Метод для проверки возможности вернуться в предыдущую директорию
+    checkPastDir(){
+        let slashCount = 0;
+        for (let i = 0; i < this.currentDir.length; i++) {
+            if (this.currentDir[i] === '/') {
+                slashCount++;
+            }
+        }
+        if (slashCount > 1) {
+            this.previousDir = this.currentDir.substring(0, this.currentDir.lastIndexOf('/'));
+        } else{
+            if (this.currentDir.charAt(0)=='.'){
+                this.previousDir = '.';
+            }
+
+            if (this.currentDir == '/home'){
+                this.previousDir = '/';
+            }
+            
         }
     }
-    if (slashCount > 1) {
-        previousDir = currentDir.substring(0, currentDir.lastIndexOf('/'));
-    } else{
-        if (currentDir.charAt(0)=='.'){
-            previousDir = '.';
-        }
 
-        if (currentDir == '/home'){
-            previousDir = '/';
+// handleTableClick Метод для обработки клика на элемент таблицы
+    handleTableClick(event: MouseEvent, files: FileInfo[]) {
+        const target = event.target as HTMLElement;
+        const row = target.closest('tr') as HTMLTableRowElement;
+
+        if (row && row.classList.contains('dir')) {
+            const index = row.dataset.index;
+            if (index !== undefined && files[+index]) {
+                this.handleFileClick(files[+index]);
+            }
         }
-        
     }
 }
 
 //  Функция для возврата на предыдущую директорию  
 document.querySelector('.backButton')?.addEventListener('click', () => {
-    if (previousDir != null) {
-        currentDir = previousDir; 
-        checkPastDir();
-        modelFetch(); 
+    if (config.previousDir != null) {
+        config.currentDir = config.previousDir; 
+        config.checkPastDir();
+        request.fetchData();
     }
 });
-
-// handleTableClick Функция для обработки клика на элемент таблицы
-export function handleTableClick(event: MouseEvent, files: FileInfo[]) {
-    const target = event.target as HTMLElement;
-    const row = target.closest('tr') as HTMLTableRowElement;
-
-    if (row && row.classList.contains('dir')) {
-        const index = row.dataset.index;
-        if (index !== undefined && files[+index]) {
-            handleFileClick(files[+index]);
-        }
-    }
-}
