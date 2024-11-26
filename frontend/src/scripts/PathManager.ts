@@ -4,13 +4,23 @@ import { pathManager, request } from "./main";
 export class PathManager{
     public currentDir: string = "";
     public previousDir: string = "";
+    public currentFiles: FileInfo[] = [];
     
     // handleFileClick Метод для обработки клика на файл или папку
-    handleFileClick(file: FileInfo){
+    handleFileClick(file: FileInfo) {
         if (file.isDir) { 
+            console.log("Handling click for directory:", file.name);
+            console.log("Previous Dir:", this.previousDir);
+            console.log("Current Dir Before Update:", this.currentDir);
+            
             this.previousDir = this.currentDir;
             this.currentDir = `${this.currentDir}/${file.name}`;
+            
+            console.log("Current Dir After Update:", this.currentDir);
             request.fetchDataDir();
+        } else {
+            console.log("Clicked on a file, no action required");
+            console.log(this.currentFiles);
         }
     }
 
@@ -53,14 +63,15 @@ export class PathManager{
     }
 
 // handleTableClick Метод для обработки клика на элемент таблицы
-    handleTableClick(event: MouseEvent, files: FileInfo[]) {
+    handleTableClick(event: MouseEvent) {
+        console.log(this.currentFiles)
         const target = event.target as HTMLElement;
         const row = target.closest('tr') as HTMLTableRowElement;
 
         if (row && row.classList.contains('dir')) {
             const index = row.dataset.index;
-            if (index !== undefined && files[+index]) {
-                this.handleFileClick(files[+index]);
+            if (index !== undefined && this.currentFiles[+index]) {
+                this.handleFileClick(this.currentFiles[+index]);
             }
         }
     }

@@ -3,15 +3,15 @@ import { pathManager } from "./main";
 
 export class RenderTableDir{
     // render - Метод для отображения списка файлов и директорий
-    render(files: FileInfo[] | null) {
+    render() {
         const fileTableBody = document.querySelector(".fileTable__tableRow") as HTMLHeadingElement | null;
         const errorMessage = document.querySelector(".errorMessage") as HTMLHeadingElement | null;
 
-        if (files !== null && fileTableBody !== null && errorMessage !== null) {
+        if (pathManager.currentFiles !== null && fileTableBody !== null && errorMessage !== null) {
             fileTableBody.innerHTML = ''; 
             errorMessage.textContent = '';
 
-            files.forEach((file: FileInfo, index: number) => {
+            pathManager.currentFiles.forEach((file: FileInfo, index: number) => {
                 const row = document.createElement('tr');
                 row.classList.add('file-item');
                 row.dataset.index = index.toString();
@@ -31,14 +31,20 @@ export class RenderTableDir{
 
                 if (file.isDir) {
                     row.classList.add('dir');
+                }else{
+                    row.classList.add('file');
+
                 }
-                row.classList.add('file');
                 fileTableBody.appendChild(row);
             });
 
             if (!fileTableBody.dataset.listenerAttached) {
-                fileTableBody.addEventListener('click', (event) => pathManager.handleTableClick(event, files));
+                const handleClick = (event: MouseEvent) => pathManager.handleTableClick(event);
+            
+                fileTableBody.addEventListener('click', handleClick);
                 fileTableBody.dataset.listenerAttached = 'true';
+            
+                fileTableBody.dataset.listener = handleClick.toString();
             }
         } else {
             if (fileTableBody!== null){

@@ -13,7 +13,9 @@ export class Request {
 
         if (response.ok) {
             const files = await response.json();
-            table.render(files);
+            pathManager.currentFiles = files;
+            console.log(pathManager.currentFiles)
+            table.render();
         } else {
             const errorText = await response.text();
             if (errorMessage !== null) {
