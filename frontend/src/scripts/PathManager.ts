@@ -1,32 +1,18 @@
-import {FileInfo} from '../interfaces/iFileInfo';
-import { request, config } from './main';
+import { FileInfo } from "../interfaces/iFileInfo";
+import { pathManager, request } from "./main";
 
-export class ConfigLoader{
+export class PathManager{
     public currentDir: string = "";
     public previousDir: string = "";
-
-    // loadConfig - Метод для загрузки конфигурации из config.json
-    async loadConfig() {
-    const response = await fetch('./config.json');
-    if (response.ok) {
-        const config = await response.json();
-        console.log(config.path);
-        console.log(config.dir);
-        this.currentDir = config.dir;
-        this.checkPastDir()
-    } else {
-        console.error('Не удалось загрузить конфигурацию.');
-    }
-}
-
-// handleFileClick Метод для обработки клика на файл или папку
+    
+    // handleFileClick Метод для обработки клика на файл или папку
     handleFileClick(file: FileInfo){
         if (file.isDir) { 
             this.previousDir = this.currentDir;
             this.currentDir = `${this.currentDir}/${file.name}`;
-            request.fetchData();
+            request.fetchDataDir();
         }
-}
+    }
 
 // updateCurrentPath Метод для отображения нынешней директории
     updateCurrentPath() {
@@ -34,7 +20,7 @@ export class ConfigLoader{
         if(path != null){
             path.textContent = this.currentDir
         }
-}
+    }
 
 // updateBackButton Метод для изменения состояния кнопки
     updateBackButton() {
@@ -42,7 +28,7 @@ export class ConfigLoader{
         if (backButton != null){
             backButton.style.display = (this.currentDir === '.' || this.currentDir === '/') ? 'none' : 'inline'; 
         }
-}
+    }
 
 // checkPastDir Метод для проверки возможности вернуться в предыдущую директорию
     checkPastDir(){
@@ -82,9 +68,9 @@ export class ConfigLoader{
 
 //  Функция для возврата на предыдущую директорию  
 document.querySelector('.backButton')?.addEventListener('click', () => {
-    if (config.previousDir != null) {
-        config.currentDir = config.previousDir; 
-        config.checkPastDir();
-        request.fetchData();
+    if (pathManager.previousDir != null) {
+        pathManager.currentDir = pathManager.previousDir; 
+        pathManager.checkPastDir();
+        request.fetchDataDir();
     }
 });

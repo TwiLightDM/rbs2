@@ -1,19 +1,19 @@
-import { config } from "../scripts/main";
-import { renderTable } from "../scripts/render";
+import { pathManager, table} from "../scripts/main";
 
 export class Request {
+
     // fetchData Метод для получения получения списка файлов и директорий с сервера
-    public async fetchData() {
+    public async fetchDataDir() {
         const order: string = (document.querySelector('input[name="order"]:checked') as HTMLInputElement).value;
-        const response = await fetch(`/files?dir=${encodeURIComponent(config.currentDir)}&order=${order}`);
+        const response = await fetch(`/files?dir=${encodeURIComponent(pathManager.currentDir)}&order=${order}`);
         const errorMessage = document.querySelector(".errorMessage") as HTMLHeadingElement | null;
 
-        config.updateCurrentPath();
-        config.updateBackButton();
+        pathManager.updateCurrentPath();
+        pathManager.updateBackButton();
 
         if (response.ok) {
             const files = await response.json();
-            renderTable(files);
+            table.render(files);
         } else {
             const errorText = await response.text();
             if (errorMessage !== null) {
